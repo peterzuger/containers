@@ -1,0 +1,117 @@
+#!/usr/bin/env bash
+
+ensure_root() {
+    if [ "$EUID" -ne 0 ]; then
+        echo "error: you cannot perform this operation unless you are root."
+        exit 1
+    fi
+}
+
+break_root() {
+    if [ "$EUID" -eq 0 ]; then
+        echo "error: avoid running as root."
+        exit 1
+    fi
+}
+
+check_docker() {
+    if (! docker stats --no-stream >>/dev/null ); then
+        return 0
+    else
+        return 1
+    fi
+}
+
+ensure_docker() {
+    if check_docker; then
+        echo "docker.service is not running"
+        echo "start docker.service with:"
+        echo -e "\tsudo systemctl start docker.service"
+        echo "or with:"
+        echo -e "\tsudo $0 --start"
+        exit 1
+    fi
+}
+
+usage() {
+    echo "Usage: $(basename $0) [OPTION]..."
+    echo "Launch a docker shell for tooling containers using docker-compose."
+    echo "Launches the shell using the docker-compose.yml in the current directory."
+    echo ""
+    echo "--build    Build an image from a Dockerfile"
+    echo "--help     display this help and exit"
+    echo "--name     Assign a name to the container"
+    echo "--rebuild  Build an image from a Dockerfile from scratch"
+    echo "--rm       Automatically remove the container when it exits"
+    echo "--service  Service name to start(default: $SERVICE)"
+    echo "--start    Start the docker.service via systemctl"
+}
+
+RM=""
+NAME=""
+SERVICE="$(basename $PWD)"
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --build)
+            break_root
+            ensure_docker
+            docker-compose build "$SERVICE"
+            exit
+            ;;
+        --help)
+            usage
+            exit
+            ;;
+        --name)
+            NAME="--name $2"
+            shift
+            shift
+            ;;
+        --rebuild)
+            break_root
+            ensure_docker
+            docker-compose build --no-cache --pull --force-rm "$SERVICE"
+            exit
+            ;;
+        --rm)
+            RM="--rm"
+            shift
+            ;;
+        --service)
+            SERVICE="$2"
+            shift
+            shift
+            ;;
+        --start)
+            if check_docker; then
+                ensure_root
+                echo "starting docker.service"
+                if systemctl start docker.service; then
+                    echo "successfully started docker.service"
+                    exit
+                else
+                    echo "failed starting docker.service"
+                fi
+            else
+                echo "docker.service is already running"
+            fi
+            exit 1
+            ;;
+        --workdir)
+            cd "$2"
+            SERVICE="$(basename $PWD)"
+            shift
+            shift
+            ;;
+        *)
+            echo "error: invalid option $1"
+            usage
+            exit 1
+            ;;
+    esac
+done
+
+break_root
+ensure_docker
+docker-compose run $RM $NAME "$SERVICE"

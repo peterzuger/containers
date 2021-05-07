@@ -1,0 +1,30 @@
+version: "3.8"
+services:
+  blue-teaming:
+    build: .
+    stdin_open: true
+    tty: true
+    cap_add:
+      - NET_ADMIN
+    networks:
+      blue-network:
+        ipv4_address: 172.20.0.2
+    volumes:
+      - type: bind
+        source: ./wireguard
+        target: /etc/wireguard
+      - type: bind
+        source: ./openvpn
+        target: /etc/openvpn
+      - type: bind
+        source: ./ssh
+        target: /home/blue/.ssh
+      - type: bind
+        source: ./scripts
+        target: /home/blue/.local/bin
+
+networks:
+  blue-network:
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

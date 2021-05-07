@@ -1,0 +1,37 @@
+version: "3.8"
+services:
+  red-teaming:
+    build: .
+    stdin_open: true
+    tty: true
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - tor-proxy
+    networks:
+      red-network:
+        ipv4_address: 172.19.0.2
+    volumes:
+      - type: bind
+        source: ./wireguard
+        target: /etc/wireguard
+      - type: bind
+        source: ./openvpn
+        target: /etc/openvpn
+      - type: bind
+        source: ./ssh
+        target: /home/red/.ssh
+      - type: bind
+        source: ./scripts
+        target: /home/red/.local/bin
+  tor-proxy:
+    build: ./tor-proxy
+    networks:
+      red-network:
+        ipv4_address: 172.19.0.3
+
+networks:
+  red-network:
+    ipam:
+      config:
+        - subnet: 172.19.0.0/16

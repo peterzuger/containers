@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+if torsocks show | grep torsocks >/dev/null; then
+    echo "currently in torsocks shell"
+else
+    echo "!! not in a torsocks shell !!"
+fi
+
+if torsocks wget -qO- https://check.torproject.org/ | grep -i congratulations >/dev/null; then
+    echo "torsocks seems to be working"
+else
+    echo "!! torsocks is not working !!"
+fi

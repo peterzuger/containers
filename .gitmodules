@@ -1,0 +1,12 @@
+[submodule "blue-teaming/configs/liquidprompt"]
+	path = blue-teaming/configs/liquidprompt
+	url = https://github.com/nojhan/liquidprompt.git
+[submodule "blue-teaming/configs/ssh-connect"]
+	path = blue-teaming/configs/ssh-connect
+	url = https://github.com/gko/ssh-connect.git
+[submodule "red-teaming/configs/liquidprompt"]
+	path = red-teaming/configs/liquidprompt
+	url = https://github.com/nojhan/liquidprompt.git
+[submodule "red-teaming/configs/ssh-connect"]
+	path = red-teaming/configs/ssh-connect
+	url = https://github.com/gko/ssh-connect.git
