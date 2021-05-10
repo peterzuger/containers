@@ -14,6 +14,23 @@ break_root() {
     fi
 }
 
+check_docker_group() {
+    if (! groups "$USER" | grep -q '\bdocker\b'); then
+        return 0
+    else
+        return 1
+    fi
+}
+
+ensure_docker_group() {
+    if check_docker_group; then
+        echo "You are not part of the docker group"
+        echo "Add yourself to the docker group with:"
+        echo -e "\tsudo gpasswd --add $USER docker"
+        exit 1
+    fi
+}
+
 check_docker() {
     if (! docker stats --no-stream >>/dev/null ); then
         return 0
@@ -31,6 +48,13 @@ ensure_docker() {
         echo -e "\tsudo $0 --start"
         exit 1
     fi
+}
+
+docker_compose() {
+    break_root
+    ensure_docker_group
+    ensure_docker
+    docker-compose "$@"
 }
 
 usage() {
@@ -54,9 +78,7 @@ SERVICE="$(basename $PWD)"
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --build)
-            break_root
-            ensure_docker
-            docker-compose build "$SERVICE"
+            docker_compose build "$SERVICE"
             exit
             ;;
         --help)
@@ -69,9 +91,7 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         --rebuild)
-            break_root
-            ensure_docker
-            docker-compose build --no-cache --pull --force-rm "$SERVICE"
+            docker_compose build --no-cache --pull --force-rm "$SERVICE"
             exit
             ;;
         --rm)
@@ -112,6 +132,4 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-break_root
-ensure_docker
-docker-compose run $RM $NAME "$SERVICE"
+docker_compose run $RM $NAME "$SERVICE"
