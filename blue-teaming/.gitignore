@@ -1,3 +1,5 @@
 ssh/id_*
+ssh/known_hosts*
+ssh/identities
 wireguard/*.conf
 openvpn/*.conf

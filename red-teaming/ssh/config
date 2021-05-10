@@ -1,0 +1,7 @@
+Compression yes
+
+Include identities
+
+#Host tor-example
+#    HostName <some-v3-onion-address>.onion
+#    ProxyCommand nc -x 172.19.0.3:9050 %h %p
