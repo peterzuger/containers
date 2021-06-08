@@ -69,6 +69,7 @@ usage() {
     echo "--rm       Automatically remove the container when it exits"
     echo "--service  Service name to start(default: $SERVICE)"
     echo "--start    Start the docker.service via systemctl"
+    echo "--workdir  Do everything after this in this directory"
 }
 
 RM=""
