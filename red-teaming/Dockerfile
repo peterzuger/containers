@@ -5,7 +5,6 @@ RUN pacman --noconfirm -Syu
 
 # install packages
 RUN pacman --noconfirm -S \
-        dnstracer \
         fping \
         git \
         grep \
