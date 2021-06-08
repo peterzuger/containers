@@ -1,4 +1,4 @@
-FROM archlinux/base
+FROM archlinux
 
 # update package database
 RUN pacman --noconfirm -Syu
